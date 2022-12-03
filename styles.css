@@ -1,0 +1,50 @@
+th,
+td {
+  padding: 2px;
+}
+body {
+  padding: 10px 50px;
+  font-family: verdana;
+  line-height: 1.5;
+  font-size: 15px;
+}
+h1 {
+  font-family: verdana;
+}
+#gui {
+  padding: 10px;
+}
+.button {
+  background-color: #555555;
+  border: none;
+  color: white;
+  padding: 8px 8px;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 6px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+.slider:hover {
+  opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #202020;
+  cursor: pointer;
+}
