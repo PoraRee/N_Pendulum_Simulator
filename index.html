@@ -312,6 +312,28 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 		}
 	}
 	
+
+	// Configure circles
+	// List of circles
+	var collisionObjects = [];
+	var numObjects =1 ;
+	var defaultY = -1 ;
+	maxObjects = 1 ; 
+	for(i=1;i<=maxObjects;i++) {
+		collisionObjects.push({
+			invMass: i == 0 ? 0 : 1 / defaultMass,
+			radius: i == 0 ? 0 : defaultRadius,
+			size: Math.sqrt(1.0*defaultMass*5) ,
+			pos: new Vector(-0.25,defaultY+0.15),
+			prev: new Vector(),
+			vel: new Vector(), 
+			compliance : 0,
+			unilateral : false,
+			force : 0,
+			elongation : 0,
+		});
+	}
+	
 	// pendulum definition
 	
 	var points = [];
@@ -345,7 +367,7 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 		trailLast = 0;
 		draw();
 	}
-	
+
 	// draw pendulum
 		
 	function draw() {
@@ -378,6 +400,9 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 				c.fillText("  f=" + p.force.toFixed(0) + "N, dx=" + p.elongation.toFixed(4) + "m", avgX, avgY); 
 			
 		}
+
+
+
 		c.lineWidth = 1;
 		
 		if (grabPointNr > 0) {
@@ -394,10 +419,24 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 			y = canvasOrig.y - p.pos.y * drawScale;
 			c.beginPath();			
 			c.arc(x, y, pointSize * p.size, 0, Math.PI*2, true); 
+			// console.log("Point", i)
+			// console.log(x,y,pointSize* p.size)
 			c.closePath();
 			c.fill();			
 		}		
-		
+
+		// collision objects are added here 
+		for(i=0;i<numObjects; i++) {
+			p = collisionObjects[i];
+			x = canvasOrig.x + p.pos.x * drawScale;
+			y = canvasOrig.y - p.pos.y * drawScale;
+			// console.log(x,y,pointSize* p.size)
+			c.beginPath();			
+			c.arc(x, y, pointSize * p.size, 0, Math.PI*2, true); 
+			c.closePath();
+			c.fill();	
+		}
+
 		if (trail.length > 1) {
 			c.strokeStyle = "#FF0000";
 			c.beginPath();
@@ -451,6 +490,29 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 		var dv = -v * Math.min(1.0, dampingCoeff * dt * p.invMass);
 		p.vel.add(n, dv);
 	}
+
+	// TODO 
+	// O(N*M) where N = #pendulum, M = #objects
+	function collide(p, o, type="circle") {
+		if(type=="circle") {
+			// radius of p 
+			p_radius = pointSize * p.size
+			// object radius
+			o_radius = pointSize * o.size 
+			bound_dist = p_radius + o_radius
+			p_x = canvasOrig.x + p.pos.x * drawScale;
+			p_y = canvasOrig.y - p.pos.y * drawScale;
+			o_x = canvasOrig.x + o.pos.x * drawScale;
+			o_y = canvasOrig.y - o.pos.y * drawScale;
+			euclidean_dist = Math.sqrt((p_x-o_x)*(p_x-o_x)+(p_y-o_y)*(p_y-o_y));
+			// console.log(p_x,p_y, o_x,o_y, bound_dist, euclidean_dist)
+			if(euclidean_dist <= bound_dist) {
+				return 1 ;	
+			}
+			else return 0; 
+
+		}
+	}
 	
 	function simulate(dt) 
 	{
@@ -503,6 +565,19 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 			}
 			if (grabPointNr >= 0) 
 				solveDistVel(grabPoint, points[grabPointNr], mouseDampingCoeff, sdt);
+
+			// TODO: Add our collision detection 
+			for(i=1;i<numPoints;i++) {
+				p = points[i]; 
+				for(j=0;j<numObjects;j++) {
+					obj = collisionObjects[j];
+					if(collide(p,obj)) {
+							// resetPos(1);
+							p.vel.x *= -1 ;
+							p.vel.y *= -0.5 ;
+					}
+				}
+			}
 			
 			if (showTrail)
 				trailAdd(points[numPoints-1].pos);
