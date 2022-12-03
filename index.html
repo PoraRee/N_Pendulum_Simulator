@@ -406,9 +406,11 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 		var x = canvasOrig.x;
 		var y = canvasOrig.y;
 
+		// console.log("start draw")
 		for (i = 1; i < numPoints; i++) {
 			var avgX = x, avgY = y;
 			p = points[i];
+			// console.log(p.pos.x, p.pos.y)
 			if (p.compliance > 0) c.strokeStyle = "#0000FF";
 			else if (p.unilateral) c.strokeStyle = "#00FF00";
 			else c.strokeStyle = "#000000";
@@ -420,8 +422,9 @@ The challenge is to <b>beat our method</b> in terms of simplicity, speed, stabil
 			c.stroke();
 			avgX = (avgX + x) / 2; avgY = (avgY + y) / 2;
 
+			// To create text 
 			if (showForces)			
-				c.fillText("  f=" + p.force.toFixed(0) + "N, dx=" + p.elongation.toFixed(4) + "m", avgX, avgY);
+				c.fillText("  f=" + p.force.toFixed(0) + "N, dx=" + p.elongation.toFixed(4) + "m", avgX, avgY); 
 			
 		}
 		c.lineWidth = 1;
