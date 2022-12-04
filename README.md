@@ -1,12 +1,15 @@
 "# N_Pendulum_Simulator" 
 
 TODO 
-1. Understand Code
-2. Try to put a square in some specific place 
-3. Try to handle the collision
+1. Understand Code (OK)
+2. Try to put a square in some specific place (OK, for circle) 
+3. Try to handle the collision (OK)
 4. Then handle the UI (such as how a user place a square)
 
 
-Note
-1. There is a Class Vector: Line 308
-2. How to draw a line see 418 - 422 
+
+TODO NEXT 
+1. Handle the UI (such as how a user place a circle)
+2. Create square (Long)
+3. Add option to allow collision with environment bound (environmental constraints)
+4. Add triangle (Long)
