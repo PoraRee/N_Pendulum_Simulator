@@ -395,6 +395,17 @@ function solvePointVel(p, dampingCoeff, dt) {
 
 // TODO
 // O(N*M) where N = #pendulum, M = #objects
+
+function euclidean(p,o) {
+    p_x = canvasOrig.x + p.pos.x * drawScale;
+    p_y = canvasOrig.y - p.pos.y * drawScale;
+    o_x = canvasOrig.x + o.pos.x * drawScale;
+    o_y = canvasOrig.y - o.pos.y * drawScale;
+    return  Math.sqrt(
+      (p_x - o_x) * (p_x - o_x) + (p_y - o_y) * (p_y - o_y)
+    );
+}
+
 function collide(p, o, type = "circle") {
   if (type == "circle") {
     // radius of p
@@ -409,11 +420,25 @@ function collide(p, o, type = "circle") {
     euclidean_dist = Math.sqrt(
       (p_x - o_x) * (p_x - o_x) + (p_y - o_y) * (p_y - o_y)
     );
+    // euclidean_dist = euclidean(p,o)
     // console.log(p_x,p_y, o_x,o_y, bound_dist, euclidean_dist)
-    if (euclidean_dist <= bound_dist) {
+    if (euclidean_dist < bound_dist) {
       return 1;
     } else return 0;
   }
+}
+
+function solvePosCollide(p0, p1, d0) {
+  var w = p0.invMass + p1.invMass;
+  var ratio0 = p0.invMass/w ;
+  var ratio1 = p1.invMass/w ;
+  var euc = euclidean(p0,p1);
+  var d = d0 ;
+  var n = p1.pos.minus(p0.pos);
+  n.normalize();
+  var alpha = 0.02 ;
+  p0.pos.add(n, (ratio0)*(euc-d)*alpha);
+  p1.pos.add(n, -(ratio1)*(euc-d)*alpha/4);
 }
 
 function simulate(dt) {
@@ -425,6 +450,12 @@ function simulate(dt) {
     for (i = 1; i < numPoints; i++) {
       p = points[i];
       p.vel.y -= gravity * sdt;
+      p.prev.assign(p.pos);
+      p.pos.add(p.vel, sdt);
+    }
+
+    for(i=0;i<numObjects;i++) {
+      p = collisionObjects[i];
       p.prev.assign(p.pos);
       p.pos.add(p.vel, sdt);
     }
@@ -455,13 +486,37 @@ function simulate(dt) {
       }
     }
 
-    // update velocities
-
+    // TODO: Add our collision detection
+    for (i = 1; i < numPoints; i++) {
+      p = points[i];
+      for (j = 0; j < numObjects; j++) {
+        obj = collisionObjects[j];
+        if (collide(p, obj)) {
+          // resetPos(1);
+          console.log("COLLIDE");
+          p_radius = pointSize * p.size;
+          o_radius = pointSize * obj.size;
+          bound_dist = p_radius + o_radius;
+          solvePosCollide(p,obj,bound_dist);
+          // Add solver 
+          // p.vel.x *= -1;
+          // p.vel.y *= -0.5;
+        }
+      }
+    }
+    // update velocities pendulum
     for (i = 1; i < numPoints; i++) {
       p = points[i];
       p.vel = p.pos.minus(p.prev);
       p.vel.scale(1 / sdt);
       solvePointVel(p, globalDampingCoeff, sdt);
+    }
+    // update velocities objects 
+    for(i=0;i<numObjects;i++) {
+      p = collisionObjects[i]; 
+      p.vel = p.pos.minus(p.prev);
+      p.vel.scale(1 / sdt);
+      // solvePointVel(p, globalDampingCoeff, sdt);
     }
 
     for (i = 0; i < numPoints - 1; i++) {
@@ -471,18 +526,7 @@ function simulate(dt) {
     if (grabPointNr >= 0)
       solveDistVel(grabPoint, points[grabPointNr], mouseDampingCoeff, sdt);
 
-    // TODO: Add our collision detection
-    for (i = 1; i < numPoints; i++) {
-      p = points[i];
-      for (j = 0; j < numObjects; j++) {
-        obj = collisionObjects[j];
-        if (collide(p, obj)) {
-          // resetPos(1);
-          p.vel.x *= -1;
-          p.vel.y *= -0.5;
-        }
-      }
-    }
+    
 
     if (showTrail) trailAdd(points[numPoints - 1].pos);
   }
