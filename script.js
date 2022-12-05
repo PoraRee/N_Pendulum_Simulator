@@ -9,6 +9,12 @@ var dt = 1 / 60;
 var edgeDampingCoeff = 0;
 var globalDampingCoeff = 0;
 
+//Circle parameters
+var circlePosX = 0;
+var circlePosY = 0;
+var circleInvMass = 1;
+var circleSize = 1;
+
 var conserveEnergy = false;
 var collisionHandling = false;
 var showTrail = true;
@@ -31,7 +37,6 @@ var drawScale = canvas.width / simWidth;
 var i, j;
 
 // GUI callbacks
-
 document.getElementById("stepsSlider").oninput = function () {
   var steps = [1, 5, 10, 20, 50, 100, 1000];
   numSubsteps = steps[Number(this.value)];
@@ -141,6 +146,56 @@ function onUnilateral(nr) {
   points[nr].unilateral = !points[nr].unilateral;
 }
 
+//TODO
+//Circle
+function updateCirclePos() {
+  circleX = document.getElementById("circleX").innerHTML;
+  circleY = document.getElementById("circleY").innerHTML;
+  circleSize = Math.sqrt(1 / Number(circleInvMass));
+  console.log(circleX, circleY, circleInvMass, circleSize);
+}
+updateCirclePos();
+var circlePositionXSteps = ["-1.0", "-0.5", "0.0", "0.5", "1.0"];
+var circlePositionYSteps = ["-1.5", "-1.0", "-0.5", "0.0", "0.5"];
+document.getElementById("circleXSlider").oninput = function () {
+  var posX = circlePositionXSteps[Number(this.value)];
+  circlePosX = Number(posX);
+  document.getElementById("circleX").innerHTML = circlePosX;
+  updateCirclePos();
+};
+document.getElementById("circleYSlider").oninput = function () {
+  var posY = circlePositionYSteps[Number(this.value)];
+  circlePosY = Number(posY);
+  document.getElementById("circleY").innerHTML = circlePosY;
+  updateCirclePos();
+};
+function setupObjMass(value, output) {
+  var masses = ["0.1", "0.5", "1.0", "2.0", "10"];
+  var m = masses[value];
+  document.getElementById(output).innerHTML = Number(m);
+  circleInvMass = 1.0 / Number(m);
+  updateCirclePos();
+}
+document.getElementById("circleMassSlider").oninput = function () {
+  setupObjMass(Number(this.value), "circleMass", 1);
+};
+function createCircle() {
+  collisionObjects.push({
+    invMass: circleInvMass,
+    size: circleSize,
+    pos: new Vector(circlePosX, circlePosY),
+    prev: new Vector(circlePosX, circlePosY),
+    radius: 0.3,
+    vel: new Vector(0, 0),
+    compliance: 0,
+    unilateral: false,
+    force: 0,
+    elongation: 0,
+  });
+  numObjects++;
+  console.log(collisionObjects);
+}
+
 class Vector {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -208,8 +263,8 @@ function trailAdd(p) {
 var collisionObjects = [];
 var numObjects = 1;
 var defaultY = -1;
-maxObjects = 1;
-for (i = 1; i <= maxObjects; i++) {
+var maxCollisionObjects = 1;
+for (i = 1; i <= maxCollisionObjects; i++) {
   collisionObjects.push({
     invMass: i == 0 ? 0 : 1 / defaultMass,
     radius: i == 0 ? 0 : defaultRadius,
@@ -397,14 +452,12 @@ function solvePointVel(p, dampingCoeff, dt) {
 // TODO
 // O(N*M) where N = #pendulum, M = #objects
 
-function euclidean(p,o) {
-    p_x = canvasOrig.x + p.pos.x * drawScale;
-    p_y = canvasOrig.y - p.pos.y * drawScale;
-    o_x = canvasOrig.x + o.pos.x * drawScale;
-    o_y = canvasOrig.y - o.pos.y * drawScale;
-    return  Math.sqrt(
-      (p_x - o_x) * (p_x - o_x) + (p_y - o_y) * (p_y - o_y)
-    );
+function euclidean(p, o) {
+  p_x = canvasOrig.x + p.pos.x * drawScale;
+  p_y = canvasOrig.y - p.pos.y * drawScale;
+  o_x = canvasOrig.x + o.pos.x * drawScale;
+  o_y = canvasOrig.y - o.pos.y * drawScale;
+  return Math.sqrt((p_x - o_x) * (p_x - o_x) + (p_y - o_y) * (p_y - o_y));
 }
 
 function collide(p, o, type = "circle") {
@@ -431,10 +484,10 @@ function collide(p, o, type = "circle") {
 
 function solvePosCollide(p0, p1, d0, change=3,alpha=0.002) {
   var w = p0.invMass + p1.invMass;
-  var ratio0 = p0.invMass/w ;
-  var ratio1 = p1.invMass/w ;
-  var euc = euclidean(p0,p1);
-  var d = d0 ;
+  var ratio0 = p0.invMass / w;
+  var ratio1 = p1.invMass / w;
+  var euc = euclidean(p0, p1);
+  var d = d0;
   var n = p1.pos.minus(p0.pos);
   n.normalize();
   // console.log(p0.pos);
@@ -537,7 +590,7 @@ function simulate(dt) {
       p.pos.add(p.vel, sdt);
     }
 
-    for(i=0;i<numObjects;i++) {
+    for (i = 0; i < numObjects; i++) {
       p = collisionObjects[i];
       p.prev.assign(p.pos);
       p.pos.add(p.vel, sdt);
@@ -598,9 +651,9 @@ function simulate(dt) {
       p.vel.scale(1 / sdt);
       solvePointVel(p, globalDampingCoeff, sdt);
     }
-    // update velocities objects 
-    for(i=0;i<numObjects;i++) {
-      p = collisionObjects[i]; 
+    // update velocities objects
+    for (i = 0; i < numObjects; i++) {
+      p = collisionObjects[i];
       p.vel = p.pos.minus(p.prev);
       p.vel.scale(1 / sdt);
       // solvePointVel(p, globalDampingCoeff, sdt);
@@ -612,8 +665,6 @@ function simulate(dt) {
     }
     if (grabPointNr >= 0)
       solveDistVel(grabPoint, points[grabPointNr], mouseDampingCoeff, sdt);
-
-    
 
     if (showTrail) trailAdd(points[numPoints - 1].pos);
   }

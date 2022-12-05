@@ -25,7 +25,15 @@ Matthias M&uuml;ller, Nvidia
 	<button onclick="resetPos(true)" class="button">Equilibrium position</button>
 	<button onclick="step()" class="button">Step</button>
 	<button onclick="run()" class="button">Run</button>
-	<br><br>
+  <br><br>
+  <div>
+    <button onclick="createCircle()" class="button">Create Circle</button>
+    <p>X: <input type = "range" min = "0" max = "4" value = "2" id = "circleXSlider" class = "slider"> <span id = "circleX">0</span></p>
+    <p>Y: <input type = "range" min = "0" max = "4" value = "3" id = "circleYSlider" class = "slider"> <span id = "circleY">0</span></p>
+    <p>mass: <input type = "range" min = "0" max = "4" value = "2" id = "circleMassSlider" class = "slider"> <span id = "circleMass">1</span></p>
+
+  </div>
+  
 <canvas id="myCanvas" width="500" height="500" style="border:3px solid #d3d3d3;">
 Your browser does not support the HTML5 canvas tag.</canvas>
 </td>
