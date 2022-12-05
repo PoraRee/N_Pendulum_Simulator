@@ -13,3 +13,10 @@ TODO NEXT
 2. Create square (Long)
 3. Add option to allow collision with environment bound (environmental constraints)
 4. Add triangle (Long)
+
+TODO NEXT+
+1. Add object-object collision constraints
+2. gravity (apply on collisionObj)
+2. fix frontend 
+3. Create square (Long)
+4. Rotation constraint (opt)
