@@ -213,7 +213,8 @@ for (i = 1; i <= maxObjects; i++) {
   collisionObjects.push({
     invMass: i == 0 ? 0 : 1 / defaultMass,
     radius: i == 0 ? 0 : defaultRadius,
-    size: Math.sqrt(1.0 * defaultMass * 5),
+    // size: Math.sqrt(1.0 * defaultMass * 5),
+    size: 1,
     pos: new Vector(-0.25, defaultY + 0.15),
     prev: new Vector(),
     vel: new Vector(),
@@ -428,7 +429,7 @@ function collide(p, o, type = "circle") {
   }
 }
 
-function solvePosCollide(p0, p1, d0) {
+function solvePosCollide(p0, p1, d0, change=3,alpha=0.002) {
   var w = p0.invMass + p1.invMass;
   var ratio0 = p0.invMass/w ;
   var ratio1 = p1.invMass/w ;
@@ -436,9 +437,91 @@ function solvePosCollide(p0, p1, d0) {
   var d = d0 ;
   var n = p1.pos.minus(p0.pos);
   n.normalize();
-  var alpha = 0.02 ;
-  p0.pos.add(n, (ratio0)*(euc-d)*alpha);
-  p1.pos.add(n, -(ratio1)*(euc-d)*alpha/4);
+  // console.log(p0.pos);
+  // bitwise
+  if((change & 1) != 0 ) {
+    p0.pos.add(n, (ratio0)*(euc-d)*alpha);
+  }
+  if((change& 2) != 0 ) {
+    p1.pos.add(n, -(ratio1)*(euc-d)*alpha/4);
+  }
+  // console.log(p0.pos);
+}
+
+var tmp = 0 ;
+
+function boundCollide(obj) {
+  o_radius = pointSize * obj.size;
+  var px = canvasOrig.x + obj.pos.x * drawScale;
+  var py = canvasOrig.y - obj.pos.y * drawScale;
+  var R = px + o_radius ; 
+  var D = py + o_radius ;
+  var U = py - o_radius ; 
+  var L = px - o_radius ;
+  tmp = (tmp+1)%5000;
+  if(tmp==4999) {
+    // console.log(obj.pos.y);
+    // console.log(px,py);
+  }
+  if(D>=500 || U <=0 || R>=500 || L <=0 ) {
+    // console.log("COLLIDE")
+    // console.log(D,U,R,L);
+    return 1 ;
+  }
+}
+
+
+// TASK: change the way we handle this 
+var ptmp = {
+    invMass: i == 0 ? 0 : 1 / defaultMass,
+    radius: i == 0 ? 0 : defaultRadius,
+    size: Math.sqrt(1.0 * defaultMass * 5),
+    pos: new Vector(-0.25, -1.5-0.085),
+    // pos: new Vector(-0.25, defaultY + 0.15),
+    prev: new Vector(),
+    vel: new Vector(),
+    compliance: 0,
+    unilateral: false,
+    force: 0,
+    elongation: 0,
+  }
+
+function solveBoundCollide(p0) {
+  console.log("CHECK")
+  console.log(p0.pos);
+  obj = p0 ; 
+  o_radius = pointSize * obj.size;
+  var px = canvasOrig.x + obj.pos.x * drawScale;
+  var py = canvasOrig.y - obj.pos.y * drawScale;
+  var R = px + o_radius ; 
+  var D = py + o_radius ;
+  var U = py - o_radius ; 
+  var L = px - o_radius ;
+  var d0 = o_radius + o_radius;
+  var p1 = ptmp;
+  p1.invMass = p0.invMass;
+  p1.radius = p0.radius ; 
+  p1.size = p0.size ;
+  p1.pos.x = p0.pos.x ; 
+  p1.pos.y = p0.pos.y ; 
+
+  var rad = o_radius / 500 * 2 ; 
+  if(D>=500) {
+    p1.pos.y = -1.5-rad ;
+  } 
+  else if(U<=0) {
+    // up 0.5
+    p1.pos.y = 0.5+rad ; 
+  }
+  else if(L<=0) {
+    // left -1 
+    p1.pos.x = -1-rad;
+  }
+  else if(R>=500) {
+    p1.pos.x = 1+rad;
+  }
+  // console.log(p0.pos,p1.pos);
+  solvePosCollide(p0,p1,d0,1,0.001);
 }
 
 function simulate(dt) {
@@ -492,18 +575,22 @@ function simulate(dt) {
       for (j = 0; j < numObjects; j++) {
         obj = collisionObjects[j];
         if (collide(p, obj)) {
-          // resetPos(1);
-          console.log("COLLIDE");
           p_radius = pointSize * p.size;
           o_radius = pointSize * obj.size;
           bound_dist = p_radius + o_radius;
           solvePosCollide(p,obj,bound_dist);
-          // Add solver 
-          // p.vel.x *= -1;
-          // p.vel.y *= -0.5;
         }
       }
     }
+    // TODO: Add collision with boundary 
+    for(j=0;j<numObjects;j++) {
+      obj = collisionObjects[j]; 
+      if(boundCollide(obj)) {
+        solveBoundCollide(obj);
+      }
+    }
+
+
     // update velocities pendulum
     for (i = 1; i < numPoints; i++) {
       p = points[i];
