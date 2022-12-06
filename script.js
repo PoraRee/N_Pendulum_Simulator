@@ -268,24 +268,24 @@ function trailAdd(p) {
 // Configure circles
 // List of circles
 var collisionObjects = [];
-var numObjects = 1;
+var numObjects = 0;
 var defaultY = -1;
 var maxCollisionObjects = 1;
-for (i = 1; i <= maxCollisionObjects; i++) {
-  collisionObjects.push({
-    invMass: i == 0 ? 0 : 1 / defaultMass,
-    radius: i == 0 ? 0 : defaultRadius,
-    // size: Math.sqrt(1.0 * defaultMass * 5),
-    size: 1,
-    pos: new Vector(-0.25, defaultY + 0.15),
-    prev: new Vector(),
-    vel: new Vector(),
-    compliance: 0,
-    unilateral: false,
-    force: 0,
-    elongation: 0,
-  });
-}
+// for (i = 1; i <= maxCollisionObjects; i++) {
+//   collisionObjects.push({
+//     invMass: i == 0 ? 0 : 1 / defaultMass,
+//     radius: i == 0 ? 0 : defaultRadius,
+//     // size: Math.sqrt(1.0 * defaultMass * 5),
+//     size: 1,
+//     pos: new Vector(-0.25, defaultY + 0.15),
+//     prev: new Vector(),
+//     vel: new Vector(),
+//     compliance: 0,
+//     unilateral: false,
+//     force: 0,
+//     elongation: 0,
+//   });
+// }
 
 // pendulum definition
 
