@@ -639,6 +639,19 @@ function simulate(dt) {
       }
     }
 
+    for(i=0;i<numObjects;i++) {
+      for(j=i+1;j<numObjects;j++) {
+        p0 = collisionObjects[i];
+        p1 = collisionObjects[j];
+        if(collide(p0,p1)) {
+          p0_radius = pointSize * p0.size;
+          p1_radius = pointSize * p1.size;
+          bound_dist = p0_radius + p1_radius;
+          solvePosCollide(p0,p1,bound_dist);
+        }
+      }
+    }
+
     // update velocities pendulum
     for (i = 1; i < numPoints; i++) {
       p = points[i];
