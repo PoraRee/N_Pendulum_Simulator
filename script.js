@@ -501,8 +501,6 @@ function solvePosCollide(p0, p1, d0, change = 3, alpha = 0.002) {
   // console.log(p0.pos);
 }
 
-var tmp = 0;
-
 function boundCollide(obj) {
   o_radius = pointSize * obj.size;
   var px = canvasOrig.x + obj.pos.x * drawScale;
@@ -511,11 +509,6 @@ function boundCollide(obj) {
   var D = py + o_radius;
   var U = py - o_radius;
   var L = px - o_radius;
-  tmp = (tmp + 1) % 5000;
-  if (tmp == 4999) {
-    // console.log(obj.pos.y);
-    // console.log(px,py);
-  }
   if (D >= 500 || U <= 0 || R >= 500 || L <= 0) {
     // console.log("COLLIDE")
     // console.log(D,U,R,L);
