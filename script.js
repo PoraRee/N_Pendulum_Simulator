@@ -127,7 +127,7 @@ document.getElementById("compliance4Slider").oninput = function () {
 //Add floating circle
 function onFloat() {
   isFloat = !isFloat;
-  console.log(isFloat);
+  // console.log(isFloat);
 }
 function onEnergy() {
   conserveEnergy = !conserveEnergy;
@@ -198,7 +198,6 @@ function createCircle() {
     unilateral: false,
     force: 0,
     elongation: 0,
-    floating: isFloat,
   });
   numObjects++;
   // console.log(collisionObjects);
@@ -604,7 +603,7 @@ function simulate(dt) {
 
     for (i = 0; i < numObjects; i++) {
       p = collisionObjects[i];
-      if (!p.floating) {
+      if (!isFloat) {
         p.vel.y -= gravity * sdt;
       }
       p.prev.assign(p.pos);
