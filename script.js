@@ -14,6 +14,7 @@ var circlePosX = 0;
 var circlePosY = 0;
 var circleInvMass = 1;
 var circleSize = 1;
+var isFloat = false;
 
 var conserveEnergy = false;
 var collisionHandling = false;
@@ -122,6 +123,12 @@ document.getElementById("compliance4Slider").oninput = function () {
   setupCompliance(Number(this.value), "compliance4", 4);
 };
 
+//TODO
+//Add floating circle
+function onFloat() {
+  isFloat = !isFloat;
+  console.log(isFloat);
+}
 function onEnergy() {
   conserveEnergy = !conserveEnergy;
   resetPos(false);
@@ -152,7 +159,7 @@ function updateCirclePos() {
   circleX = document.getElementById("circleX").innerHTML;
   circleY = document.getElementById("circleY").innerHTML;
   circleSize = Math.sqrt(1 / Number(circleInvMass));
-  console.log(circleX, circleY, circleInvMass, circleSize);
+  // console.log(circleX, circleY, circleInvMass, circleSize);
 }
 updateCirclePos();
 var circlePositionXSteps = ["-1.0", "-0.5", "0.0", "0.5", "1.0"];
@@ -191,9 +198,10 @@ function createCircle() {
     unilateral: false,
     force: 0,
     elongation: 0,
+    floating: isFloat,
   });
   numObjects++;
-  console.log(collisionObjects);
+  // console.log(collisionObjects);
 }
 
 class Vector {
@@ -532,8 +540,8 @@ var ptmp = {
 };
 
 function solveBoundCollide(p0) {
-  console.log("CHECK");
-  console.log(p0.pos);
+  // console.log("CHECK");
+  // console.log(p0.pos);
   obj = p0;
   o_radius = pointSize * obj.size;
   var px = canvasOrig.x + obj.pos.x * drawScale;
@@ -553,16 +561,19 @@ function solveBoundCollide(p0) {
   var rad = (o_radius / 500) * 2;
   if (D >= 500) {
     p1.pos.y = -1.5 - rad;
-  } else if (U <= 0) {
+  }
+  if (U <= 0) {
     // up 0.5
     p1.pos.y = 0.5 + rad;
-  } else if (L <= 0) {
+  }
+  if (L <= 0) {
     // left -1
     p1.pos.x = -1 - rad;
-  } else if (R >= 500) {
+  }
+  if (R >= 500) {
     p1.pos.x = 1 + rad;
   }
-  // console.log(p0.pos,p1.pos);
+  // console.log(p0.pos, p1.pos);
   solvePosCollide(p0, p1, d0, 1, 0.001);
 }
 
@@ -581,6 +592,9 @@ function simulate(dt) {
 
     for (i = 0; i < numObjects; i++) {
       p = collisionObjects[i];
+      if (!p.floating) {
+        p.vel.y -= gravity * sdt;
+      }
       p.prev.assign(p.pos);
       p.pos.add(p.vel, sdt);
     }
@@ -632,15 +646,15 @@ function simulate(dt) {
       }
     }
 
-    for(i=0;i<numObjects;i++) {
-      for(j=i+1;j<numObjects;j++) {
+    for (i = 0; i < numObjects; i++) {
+      for (j = i + 1; j < numObjects; j++) {
         p0 = collisionObjects[i];
         p1 = collisionObjects[j];
-        if(collide(p0,p1)) {
+        if (collide(p0, p1)) {
           p0_radius = pointSize * p0.size;
           p1_radius = pointSize * p1.size;
           bound_dist = p0_radius + p1_radius;
-          solvePosCollide(p0,p1,bound_dist);
+          solvePosCollide(p0, p1, bound_dist);
         }
       }
     }
