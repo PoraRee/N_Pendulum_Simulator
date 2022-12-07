@@ -642,36 +642,36 @@ function solveBoundCollide(p0) {
   p1.size = p0.size;
   p1.pos.x = p0.pos.x;
   p1.pos.y = p0.pos.y;
-
+  var alpha = 0.002 ;
   var rad = (o_radius / 500) * 2;
   if (D >= 500) {
     p1.pos.x = p0.pos.x;
     p1.pos.y = p0.pos.y;
     p1.pos.y = -1.5 - rad;
-    solvePosCollide(p0, p1, d0, 1, 0.001);
+    solvePosCollide(p0, p1, d0, 1, alpha);
   }
   if (U <= 0) {
     // up 0.5
     p1.pos.x = p0.pos.x;
     p1.pos.y = p0.pos.y;
     p1.pos.y = 0.5 + rad;
-    solvePosCollide(p0, p1, d0, 1, 0.001);
+    solvePosCollide(p0, p1, d0, 1, alpha);
   }
   if (L <= 0) {
     // left -1
     p1.pos.x = p0.pos.x;
     p1.pos.y = p0.pos.y;
     p1.pos.x = -1 - rad;
-    solvePosCollide(p0, p1, d0, 1, 0.001);
+    solvePosCollide(p0, p1, d0, 1, alpha);
   }
   if (R >= 500) {
     p1.pos.x = p0.pos.x;
     p1.pos.y = p0.pos.y;
     p1.pos.x = 1 + rad;
-    solvePosCollide(p0, p1, d0, 1, 0.001);
+    solvePosCollide(p0, p1, d0, 1, alpha);
   }
   // console.log(p0.pos, p1.pos);
-  solvePosCollide(p0, p1, d0, 1, 0.001);
+  // solvePosCollide(p0, p1, d0, 1, 0.001);
 }
 
 function simulate(dt) {
