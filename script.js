@@ -384,6 +384,29 @@ for (i = 0; i < maxPoints; i++)
     elongation: 0,
   });
 
+
+var pi = 3.141592653589; 
+var rects = []; 
+var numRects = 1 ; 
+// var Focus = {
+//         X: 500,
+//         Y: 1000
+//     };
+for(i=0;i<numRects;i++) {
+  rects.push({
+    invMass: 1/defaultMass,
+    width: 30,
+    height: 30,
+    size:30,
+    pos: new Vector(-0.5,-0.5),
+    prev: new Vector(-0.5,-0.5), 
+    vel: new Vector(), 
+    angle:0,
+    ang_v:-2,
+    ang_acc: +0.5,
+  });
+}
+
 function resetPos(equilibrium) {
   var pos = equilibrium
     ? new Vector(0, 0)
@@ -487,6 +510,18 @@ function draw() {
     c.fill();
   }
 
+  // draw rectangle 
+  for(i=0;i<numRects;i++) {
+    rect = rects[i];
+    x = canvasOrig.x + rect.pos.x * drawScale;
+    y = canvasOrig.y - rect.pos.y * drawScale;
+    c.save();
+    c.translate(x,y);
+    c.rotate(rect.angle);
+    c.fillRect(-rect.width/2, -rect.width/2, rect.width, rect.height);
+    c.restore();
+  }
+
   if (trail.length > 1) {
     c.strokeStyle = "#FF0000";
     c.beginPath();
@@ -572,6 +607,30 @@ function collide(p, o, type = "circle") {
     if (euclidean_dist < bound_dist) {
       return 1;
     } else return 0;
+  }
+  if(type == "rect") {
+    // do something
+    p_radius = p.size/2;
+    // object radius
+    o_radius = pointSize * o.size;
+    bound_dist = p_radius + o_radius;
+    p_x = canvasOrig.x + p.pos.x * drawScale;
+    p_y = canvasOrig.y - p.pos.y * drawScale;
+    o_x = canvasOrig.x + o.pos.x * drawScale;
+    o_y = canvasOrig.y - o.pos.y * drawScale;
+    euclidean_dist = Math.sqrt(
+      (p_x - o_x) * (p_x - o_x) + (p_y - o_y) * (p_y - o_y)
+    );
+    if (euclidean_dist < bound_dist) {
+      return 1;
+    } else return 0;
+    // var rect = p ;
+    // var cir = o ;
+    // var cir_radius = pointSize * cir.size ; 
+    // var pos_vector = rect.pos.minus(cir.pos);
+    // pos_vector.normalize();
+    // pos_vector.scale(cir_radius);
+
   }
 }
 
@@ -680,6 +739,18 @@ function simulate(dt) {
   for (step = 0; step < numSubsteps; step++) {
     // predict
 
+    for(i=0;i<numRects;i++) {
+      rect = rects[i] ; 
+      rect.prev.assign(rect.pos); 
+      rect.angle += rect.ang_v * sdt; 
+      if(rect.ang_v>0) {
+        rect.ang_v -= 0.5 * sdt ; 
+      }
+      else {
+        rect.ang_v += 0.5 * sdt;
+      }
+    }
+
     for (i = 1; i < numPoints; i++) {
       p = points[i];
       p.vel.y -= gravity * sdt;
@@ -697,6 +768,36 @@ function simulate(dt) {
     }
 
     // solve positions
+    for(j=0;j<numRects;j++) {
+      rect = rects[j];
+      for(i=1;i<numPoints;i++) {
+        p = points[i];
+        // if(collide(rect,p,"rect")) {
+        //   // do some shit
+        // }
+          // console.log("HELLO");
+        if(collide(rect,p,"rect")) {
+          // do some shit
+          p_radius = rect.size/2;
+          o_radius = pointSize * p.size;
+          bound_dist = p_radius + o_radius;
+          rect.ang_v += Math.random()-0.5;
+          solvePosCollide(rect,p,bound_dist,2);
+        }
+      }
+      for(i=0;i<numObjects;i++) {
+        p = collisionObjects[i];
+        if(collide(rect,p,"rect")) {
+          // do some shit
+          p_radius = rect.size/2;
+          o_radius = pointSize * p.size;
+          bound_dist = p_radius + o_radius;
+          rect.ang_v += Math.random()-0.5;
+          solvePosCollide(rect,p,bound_dist,2);
+        } 
+      }
+    }
+
 
     for (i = 0; i < numPoints - 1; i++) {
       p = points[i + 1];
