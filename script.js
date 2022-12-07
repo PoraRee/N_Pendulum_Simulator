@@ -15,6 +15,7 @@ var circlePosY = 0;
 var circleInvMass = 1;
 var circleSize = 1;
 var isFloat = false;
+var isFixed = false;
 
 var conserveEnergy = false;
 var collisionHandling = false;
@@ -129,6 +130,11 @@ function onFloat() {
   isFloat = !isFloat;
   // console.log(isFloat);
 }
+
+function onFix() {
+  isFixed = !isFixed;
+}
+
 function onEnergy() {
   conserveEnergy = !conserveEnergy;
   resetPos(false);
@@ -272,15 +278,13 @@ function createCircle() {
     size: circleSize,
     pos: new Vector(circlePosX, circlePosY),
     prev: new Vector(circlePosX, circlePosY),
-    radius: 0.3,
     vel: new Vector(0, 0),
-    compliance: 0,
-    unilateral: false,
     force: 0,
     elongation: 0,
+    fixed: isFixed,
   });
   numObjects++;
-  // console.log(collisionObjects);
+  console.log(collisionObjects);
 }
 
 class Vector {
@@ -642,7 +646,7 @@ function solveBoundCollide(p0) {
   p1.size = p0.size;
   p1.pos.x = p0.pos.x;
   p1.pos.y = p0.pos.y;
-  var alpha = 0.002 ;
+  var alpha = 0.002;
   var rad = (o_radius / 500) * 2;
   if (D >= 500) {
     p1.pos.x = p0.pos.x;
@@ -692,8 +696,16 @@ function simulate(dt) {
       if (!isFloat) {
         p.vel.y -= gravity * sdt;
       }
-      p.prev.assign(p.pos);
-      p.pos.add(p.vel, sdt);
+
+      if (p.fixed) {
+        p.pos.x = p.prev.x;
+        p.pos.y = p.prev.y;
+        p.vel.x = 0;
+        p.vel.y = 0;
+      } else {
+        p.prev.assign(p.pos);
+        p.pos.add(p.vel, sdt);
+      }
     }
 
     // solve positions
