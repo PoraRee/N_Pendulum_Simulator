@@ -1,6 +1,7 @@
 th,
 td {
   padding: 2px;
+  vertical-align: top;
 }
 body {
   padding: 10px 50px;
