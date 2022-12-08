@@ -17,6 +17,20 @@ var circleSize = 1;
 var isFloat = false;
 var isFixed = false;
 
+var collisionObjects = [];
+var numObjects = 0;
+var defaultY = -1;
+var maxCollisionObjects = 1;
+//Rect parameters
+var rectPosX = 0;
+var rectPosY = 0;
+var rectInvMass = 1 / 5;
+var rectSize = 1;
+
+var pi = 3.141592653589;
+var rects = [];
+var numRects = 1;
+
 var conserveEnergy = false;
 var collisionHandling = false;
 var showTrail = true;
@@ -287,6 +301,137 @@ function createCircle() {
   // console.log(collisionObjects);
 }
 
+//TODO
+//Square
+function updateRectPos() {
+  rectPosX = document.getElementById("rectX").innerHTML;
+  rectPosY = document.getElementById("rectY").innerHTML;
+  rectSize = Math.sqrt(1 / Number(rectInvMass));
+  // console.log(rectPosX, rectPosY, rectInvMass, rectSize);
+}
+updateRectPos();
+var rectPositionXSteps = [
+  "-0.95",
+  "-0.9",
+  "-0.85",
+  "-0.8",
+  "-0.75",
+  "-0.7",
+  "-0.65",
+  "-0.6",
+  "-0.55",
+  "-0.5",
+  "-0.45",
+  "-0.4",
+  "-0.35",
+  "-0.3",
+  "-0.25",
+  "-0.2",
+  "-0.15",
+  "-0.1",
+  "-0.05",
+  "0.0",
+  "0.05",
+  "0.1",
+  "0.15",
+  "0.2",
+  "0.25",
+  "0.3",
+  "0.35",
+  "0.4",
+  "0.45",
+  "0.5",
+  "0.55",
+  "0.6",
+  "0.65",
+  "0.7",
+  "0.75",
+  "0.8",
+  "0.85",
+  "0.9",
+  "0.95",
+];
+var rectPositionYSteps = [
+  "-1.45",
+  "-1.4",
+  "-1.35",
+  "-1.3",
+  "-1.25",
+  "-1.2",
+  "-1.15",
+  "-1.1",
+  "-1.05",
+  "-1",
+  "-0.95",
+  "-0.9",
+  "-0.85",
+  "-0.8",
+  "-0.75",
+  "-0.7",
+  "-0.65",
+  "-0.6",
+  "-0.55",
+  "-0.5",
+  "-0.45",
+  "-0.4",
+  "-0.35",
+  "-0.3",
+  "-0.25",
+  "-0.2",
+  "-0.15",
+  "-0.1",
+  "-0.05",
+  "0.0",
+  "0.05",
+  "0.1",
+  "0.15",
+  "0.2",
+  "0.25",
+  "0.3",
+  "0.35",
+  "0.4",
+  "0.45",
+];
+document.getElementById("rectXSlider").oninput = function () {
+  var posX = rectPositionXSteps[Number(this.value)];
+  rectPosX = Number(posX);
+  document.getElementById("rectX").innerHTML = rectPosX;
+  updateRectPos();
+};
+document.getElementById("rectYSlider").oninput = function () {
+  var posY = rectPositionYSteps[Number(this.value)];
+  rectPosY = Number(posY);
+  document.getElementById("rectY").innerHTML = rectPosY;
+  updateRectPos();
+};
+function setupRegMass(value, output) {
+  var masses = ["1", "3", "5", "10"];
+  var m = masses[value];
+  document.getElementById(output).innerHTML = Number(m);
+  rectInvMass = 1.0 / Number(m);
+  updateRectPos();
+}
+document.getElementById("rectMassSlider").oninput = function () {
+  setupRegMass(Number(this.value), "rectMass", 1);
+};
+function createRect() {
+  rects.push({
+    invMass: rectInvMass,
+    size: rectSize * 10,
+    pos: new Vector(rectPosX, rectPosY),
+    prev: new Vector(rectPosX, rectPosY),
+    vel: new Vector(0, 0),
+    force: 0,
+    elongation: 0,
+    height: rectSize * 10,
+    width: rectSize * 10,
+    ang_acc: 0.5,
+    ang_v: 0,
+    angle: 0,
+  });
+  numRects++;
+  console.log(rects);
+}
 class Vector {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -351,10 +496,6 @@ function trailAdd(p) {
 
 // Configure circles
 // List of circles
-var collisionObjects = [];
-var numObjects = 0;
-var defaultY = -1;
-var maxCollisionObjects = 1;
 // for (i = 1; i <= maxCollisionObjects; i++) {
 //   collisionObjects.push({
 //     invMass: i == 0 ? 0 : 1 / defaultMass,
@@ -388,13 +529,6 @@ for (i = 0; i < maxPoints; i++)
     elongation: 0,
   });
 
-var pi = 3.141592653589;
-var rects = [];
-var numRects = 1;
-// var Focus = {
-//         X: 500,
-//         Y: 1000
-//     };
 for (i = 0; i < numRects; i++) {
   rects.push({
     invMass: 1 / defaultMass,
