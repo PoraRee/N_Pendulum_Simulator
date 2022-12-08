@@ -430,7 +430,7 @@ function createRect() {
     angle: 0,
   });
   numRects++;
-  console.log(rects);
+  // console.log(rects);
 }
 class Vector {
   constructor(x = 0, y = 0) {
