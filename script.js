@@ -29,7 +29,7 @@ var rectSize = 1;
 
 var pi = 3.141592653589;
 var rects = [];
-var numRects = 1;
+var numRects = 0;
 
 var conserveEnergy = false;
 var collisionHandling = false;
@@ -528,21 +528,6 @@ for (i = 0; i < maxPoints; i++)
     force: 0,
     elongation: 0,
   });
-
-for (i = 0; i < numRects; i++) {
-  rects.push({
-    invMass: 1 / defaultMass,
-    width: 30,
-    height: 30,
-    size: 30,
-    pos: new Vector(-0.5, -0.5),
-    prev: new Vector(-0.5, -0.5),
-    vel: new Vector(),
-    angle: 0,
-    ang_v: -2,
-    ang_acc: +0.5,
-  });
-}
 
 function resetPos(equilibrium) {
   var pos = equilibrium
