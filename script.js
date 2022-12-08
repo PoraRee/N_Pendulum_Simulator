@@ -546,10 +546,13 @@ function resetPos(equilibrium) {
 
   //TODO
   // remove collision objects
-  collisionObjects = [];
-  numObjects = 0;
-  rects = [];
-  numRects = 0;
+  if (!equilibrium) {
+    collisionObjects = [];
+    numObjects = 0;
+    rects = [];
+    numRects = 0;
+  }
+
   trail = [];
   trailLast = 0;
   draw();
