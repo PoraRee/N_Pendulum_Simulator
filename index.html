@@ -299,6 +299,53 @@
             <p><input type="checkbox" onclick="onFloat()" /> Floated</p>
             <p><input type="checkbox" onclick="onFix()" /> Fixed</p>
           </div>
+
+          <br />
+          <br />
+
+          <div>
+            <button onclick="createRect()" class="button">
+              Create Rectangle
+            </button>
+            <p>
+              X:
+              <input
+                style="width: 400px"
+                type="range"
+                min="0"
+                max="38"
+                value="19"
+                id="rectXSlider"
+                class="slider"
+              />
+              <span id="rectX">0</span>
+            </p>
+            <p>
+              Y:
+              <input
+                style="width: 400px"
+                type="range"
+                min="0"
+                max="38"
+                value="29"
+                id="rectYSlider"
+                class="slider"
+              />
+              <span id="rectY">0</span>
+            </p>
+            <p>
+              mass:
+              <input
+                type="range"
+                min="0"
+                max="3"
+                value="2"
+                id="rectMassSlider"
+                class="slider"
+              />
+              <span id="rectMass">5</span>
+            </p>
+          </div>
         </td>
       </tr>
     </table>
