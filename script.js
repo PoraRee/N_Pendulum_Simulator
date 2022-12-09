@@ -277,7 +277,7 @@ document.getElementById("circleYSlider").oninput = function () {
   updateCirclePos();
 };
 function setupObjMass(value, output) {
-  var masses = ["0.1", "0.5", "1.0", "2.0", "10"];
+  var masses = ["0.5", "1.0", "2.0", "5", "10"];
   var m = masses[value];
   document.getElementById(output).innerHTML = Number(m);
   circleInvMass = 1.0 / Number(m);
